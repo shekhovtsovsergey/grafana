@@ -1,0 +1,195 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp-service-3000
+                port:
+                  number: 3000
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework  # Новый хост для Prometheus
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp-service-9090
+                port:
+                  number: 9090
+---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: myapp-ingress-8080
+#spec:
+#  ingressClassName: nginx
+#  rules:
+#    - host: arch.homework
+#      http:
+#        paths:
+#          - path: /core
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: myapp-service-8080
+#                port:
+#                  number: 8080
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: myapp-ingress-3000
+#spec:
+#  ingressClassName: nginx
+#  rules:
+#    - host: arch.homework
+#      http:
+#        paths:
+#          - path: /
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: myapp-service-3000
+#                port:
+#                  number: 3000
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: myapp-ingress-9090
+#spec:
+#  ingressClassName: nginx
+#  rules:
+#    - host: arch.homework
+#      http:
+#        paths:
+#          - path: /prometheus
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: myapp-service-9090
+#                port:
+#                  number: 9090
+#          - path: /
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: myapp-service-3000
+#                port:
+#                  number: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment-3000
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp-3000
+  template:
+    metadata:
+      labels:
+        app: myapp-3000
+    spec:
+      containers:
+        - name: myapp-container
+          image: 89629417575/grafana-lesson11
+          ports:
+            - containerPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment-9090
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp-9090
+  template:
+    metadata:
+      labels:
+        app: myapp-9090
+    spec:
+      containers:
+        - name: myapp-container
+          image: 89629417575/prometheus-lesson11
+          ports:
+            - containerPort: 9090
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment-8080
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp-8080
+  template:
+    metadata:
+      labels:
+        app: myapp-8080
+    spec:
+      containers:
+        - name: myapp-container
+          image: 89629417575/core-lesson11
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service-8080
+spec:
+  selector:
+    app: myapp-8080
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service-3000
+spec:
+  selector:
+    app: myapp-3000
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service-9090
+spec:
+  selector:
+    app: myapp-9090
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+  type: LoadBalancer
