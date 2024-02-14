@@ -2,5 +2,12 @@ management:
   endpoints:
     web:
       exposure:
-        include:
-        - prometheus
+        include: "*"
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+        step: 10s  # Интервал экспорта метрик в Prometheus

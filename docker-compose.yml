@@ -5,6 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     domainname: core
+    image: 89629417575/core-lesson11
     container_name: core
     ports:
       - "8080:8080"
